@@ -1,3 +1,4 @@
+import streamlit as st
 import yfinance as yf
 from IPython.display import HTML, display
 #!/usr/bin/env python
