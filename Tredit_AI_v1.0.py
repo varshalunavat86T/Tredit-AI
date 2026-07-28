@@ -1,3 +1,4 @@
+import yfinance as yf
 from IPython.display import HTML, display
 #!/usr/bin/env python
 # coding: utf-8
