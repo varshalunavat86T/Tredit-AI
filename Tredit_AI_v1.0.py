@@ -188,8 +188,9 @@ final_master_karnet_code = """
 
 </div>
 """
+import streamlit.components.v1 as components
+components.html(final_master_karnet_code, height=800, scrolling=True)
 
-display(HTML(final_master_karnet_code))
 
 
 # In[1]:
