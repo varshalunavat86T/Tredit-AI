@@ -8,7 +8,6 @@
 # TREDIT AI v1.0 — FINAL COMPLETE MASTER DASHBOARD (KARNET / JUPYTER READY)
 # ==============================================================================
 
-from IPython.display import HTML, display
 
 final_master_karnet_code = """
 <div style="background-color: #05070a; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 22px; border-radius: 14px; border: 1px solid #1f293d; max-width: 980px; margin: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.95);">
