@@ -251,77 +251,85 @@ final_master_karnet_code = f"""
 
 components.html(final_master_karnet_code, height=1250, scrolling=True)
 # ==============================================================================
-# POSITION #1 | MODULE #1: OPTION CHAIN & BROAD CANDLE UI (GREEN)
+# POSITION #1 | MODULE #1: OPTION CHAIN & BROAD CANDLE (NO PLOTLY ERROR)
 # ==============================================================================
 import streamlit as st
-import plotly.graph_objects as go
-from datetime import datetime
 
 st.markdown("---")
-st.header("📌 POSITION #1 | MODULE #1: OPTION CHAIN & LIVE BROAD CANDLE")
+st.header("📌 POSITION #1 | MODULE #1: OPTION CHAIN & ORDER-FLOW IMBALANCE")
+
+# Custom CSS for Big Broad Green/Red Candles
+st.markdown("""
+    <style>
+    .candle-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #121212;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #333;
+    }
+    .wick {
+        width: 4px;
+        background-color: #00FF66;
+        height: 30px;
+    }
+    .wick-red {
+        width: 4px;
+        background-color: #FF3333;
+        height: 30px;
+    }
+    .candle-body-green {
+        width: 70px;
+        height: 120px;
+        background-color: #00FF66;
+        border-radius: 4px;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+    }
+    .candle-body-red {
+        width: 70px;
+        height: 60px;
+        background-color: #FF3333;
+        border-radius: 4px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("🟢 CALL OPTION (CE)")
     
-    # --- BROAD GREEN CANDLE VISUAL ---
-    # डेटा जो कैंडल की शेप तय करता है (मोटा/ब्रॉड बनाने के लिए)
-    c_open, c_high, c_low, c_close = 100, 150, 80, 140 # तेजी वाली कैंडल (हरा)
+    st.markdown("""
+        <div class="candle-container">
+            <div class="wick"></div>
+            <div class="candle-body-green"></div>
+            <div class="wick"></div>
+            <h4 style="color:#00FF66; margin-top:10px;">BULLISH MARUBOZU</h4>
+        </div>
+    """, unsafe_allow_html=True)
     
-    fig_ce = go.Figure(data=[go.Candlestick(
-        x=[datetime.now()],
-        open=[c_open], high=[c_high],
-        low=[c_low], close=[c_close],
-        increasing_line_color='#00FF66',  # एकदम चमकदार हरा
-        increasing_fill_color='#00FF66',  # अंदर भी हरा भरा
-        line_width=6,  # कैंडल की आउटलाइन की मोटाई
-    )])
-    
-    # कैंडल को मोटा/ब्रॉड करने के लिए लेआउट सेटिंग्स
-    fig_ce.update_layout(
-        xaxis_rangeslider_visible=False,
-        margin=dict(l=10, r=10, t=10, b=10),
-        height=300, # कैंडल की ऊँचाई
-        yaxis_title="Volume",
-        shapes=[dict(type='rect', xref='paper', yref='paper', x0=0, y0=0, x1=1, y1=1, line_width=0)] # कैंडल की चौड़ाई के लिए
-    )
-    # कैंडलस्टिक को ब्रॉड करने के लिए विशेष ट्रिक
-    fig_ce.update_traces(selector=dict(type='candlestick'), width=0.8) # 0.8 मतलब बहुत चौड़ी (ममोटी)
-
-    st.plotly_chart(fig_ce, use_container_width=True)
-    
+    st.write("")
     st.write("**Buying Inflow:** 82.40% | **Exit Volume:** 11.20%")
-    st.write("🕯️ **Candle Status:** 🟢 BULLISH MARUBOZU (SUPER BROAD)")
 
 with col2:
     st.subheader("🔴 PUT OPTION (PE)")
     
-    # --- BROAD RED CANDLE VISUAL ---
-    p_open, p_high, p_low, p_close = 120, 130, 70, 80 # मंदी वाली कैंडल (लाल)
-
-    fig_pe = go.Figure(data=[go.Candlestick(
-        x=[datetime.now()],
-        open=[p_open], high=[p_high],
-        low=[p_low], close=[p_close],
-        decreasing_line_color='#FF3333',  # लाल
-        decreasing_fill_color='#FF3333',  # अंदर भी लाल
-        line_width=6,
-    )])
+    st.markdown("""
+        <div class="candle-container">
+            <div class="wick-red"></div>
+            <div class="candle-body-red"></div>
+            <div class="wick-red"></div>
+            <h4 style="color:#FF3333; margin-top:10px;">LOW VOLUME PE</h4>
+        </div>
+    """, unsafe_allow_html=True)
     
-    fig_pe.update_layout(
-        xaxis_rangeslider_visible=False,
-        margin=dict(l=10, r=10, t=10, b=10),
-        height=300,
-        yaxis_title="Volume"
-    )
-    fig_pe.update_traces(selector=dict(type='candlestick'), width=0.8)
-
-    st.plotly_chart(fig_pe, use_container_width=True)
-
+    st.write("")
     st.write("**Buying Inflow:** 17.60% | **Exit Volume:** 75.80%")
-    st.write("🕯️ **Candle Status:** 🔴 LOW VOLUME PE (BROAD)")
 
+st.markdown("<br>", unsafe_allow_html=True)
 st.info("🎯 **Module Accuracy:** 99.9999% Precision Level")
 
 # TRIGGER BUTTON SIGNAL
@@ -329,3 +337,4 @@ call_buy_pct = 82.40
 if call_buy_pct >= 70.0:
     st.success("🚀 **LIVE SIGNAL: BUY CALL (CE) RIGHT NOW!**")
     st.button("🟢 BUY CE (HIGH POWER SIGNAL)", type="primary")
+
