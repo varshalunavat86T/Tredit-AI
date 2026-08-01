@@ -338,3 +338,4 @@ if call_buy_pct >= 70.0:
     st.success("🚀 **LIVE SIGNAL: BUY CALL (CE) RIGHT NOW!**")
     st.button("🟢 BUY CE (HIGH POWER SIGNAL)", type="primary")
 
+
