@@ -251,9 +251,18 @@ final_master_karnet_code = f"""
 
 components.html(final_master_karnet_code, height=1250, scrolling=True)
 # ==============================================================================
-# POSITION #1 | MODULE #1: OPTION CHAIN & ORDER-FLOW IMBALANCE (STREAMLIT UI)
+# POSITION #1 | MODULE #1: OPTION CHAIN & ORDER-FLOW IMBALANCE (GREEN UI)
 # ==============================================================================
 import streamlit as st
+
+# CSS TRICK: यह 2 लाइनें नीली पट्टी को चमकदार हरा बना देंगी
+st.markdown("""
+    <style>
+        div.stProgress > div > div > div > div {
+            background-color: #00FF66 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 st.markdown("---")
 st.header("📌 POSITION #1 | MODULE #1: OPTION CHAIN & ORDER-FLOW IMBALANCE")
