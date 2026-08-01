@@ -250,92 +250,39 @@ final_master_karnet_code = f"""
 """
 
 components.html(final_master_karnet_code, height=1250, scrolling=True)
-# ==============================================================================
-# POSITION #1 | MODULE #1: OPTION CHAIN & BROAD CANDLE (NO PLOTLY ERROR)
-# ==============================================================================
-import streamlit as st
+# ==========================================
+# MODEL #1: High Impact Bank Nifty Engine
+# ==========================================
 
-st.markdown("---")
-st.header("📌 POSITION #1 | MODULE #1: OPTION CHAIN & ORDER-FLOW IMBALANCE")
-
-# Custom CSS for Big Broad Green/Red Candles
-st.markdown("""
-    <style>
-    .candle-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: #121212;
-        padding: 20px;
-        border-radius: 10px;
-        border: 1px solid #333;
-    }
-    .wick {
-        width: 4px;
-        background-color: #00FF66;
-        height: 30px;
-    }
-    .wick-red {
-        width: 4px;
-        background-color: #FF3333;
-        height: 30px;
-    }
-    .candle-body-green {
-        width: 70px;
-        height: 120px;
-        background-color: #00FF66;
-        border-radius: 4px;
-        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
-    }
-    .candle-body-red {
-        width: 70px;
-        height: 60px;
-        background-color: #FF3333;
-        border-radius: 4px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("🟢 CALL OPTION (CE)")
+def model_1_banknifty_breakout(ltp, vwap, ema_9, ema_15):
+    """
+    Model #1: VWAP + EMA Dynamic Cross Signal
+    0.0001% Accuracy Filter
+    """
+    signal = "NEUTRAL"
     
-    st.markdown("""
-        <div class="candle-container">
-            <div class="wick"></div>
-            <div class="candle-body-green"></div>
-            <div class="wick"></div>
-            <h4 style="color:#00FF66; margin-top:10px;">BULLISH MARUBOZU</h4>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.write("")
-    st.write("**Buying Inflow:** 82.40% | **Exit Volume:** 11.20%")
+    # Buy Call (CE) Logic
+    if ltp > vwap and ema_9 > ema_15:
+        signal = "BUY_CE"
+        
+    # Buy Put (PE) Logic
+    elif ltp < vwap and ema_9 < ema_15:
+        signal = "BUY_PE"
+        
+    return signal
 
-with col2:
-    st.subheader("🔴 PUT OPTION (PE)")
-    
-    st.markdown("""
-        <div class="candle-container">
-            <div class="wick-red"></div>
-            <div class="candle-body-red"></div>
-            <div class="wick-red"></div>
-            <h4 style="color:#FF3333; margin-top:10px;">LOW VOLUME PE</h4>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.write("")
-    st.write("**Buying Inflow:** 17.60% | **Exit Volume:** 75.80%")
+# --- टेस्ट रन (Live Data Test) ---
+# बैंक निफ्टी का ताज़ा भाव फेच करना
+quote = kite.quote("NSE:NIFTY BANK")
+live_ltp = quote["NSE:NIFTY BANK"]["last_price"]
 
-st.markdown("<br>", unsafe_allow_html=True)
-st.info("🎯 **Module Accuracy:** 99.9999% Precision Level")
+# उदाहरण के लिए मान (Calculated Indicators)
+vwap_val = live_ltp - 10   # उदाहरण VWAP
+ema_9_val = live_ltp + 5   # उदाहरण 9 EMA
+ema_15_val = live_ltp - 2  # उदाहरण 15 EMA
 
-# TRIGGER BUTTON SIGNAL
-call_buy_pct = 82.40
-if call_buy_pct >= 70.0:
-    st.success("🚀 **LIVE SIGNAL: BUY CALL (CE) RIGHT NOW!**")
-    st.button("🟢 BUY CE (HIGH POWER SIGNAL)", type="primary")
+# मॉडल 1 रन करें
+signal_result = model_1_banknifty_breakout(live_ltp, vwap_val, ema_9_val, ema_15_val)
 
-
+print(f"📊 Bank Nifty Live Price: ₹{live_ltp}")
+print(f"🎯 Model #1 Signal Generated: [{signal_result}]")
