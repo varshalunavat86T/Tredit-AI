@@ -2,3 +2,4 @@ ipython
 streamlit
 yfinance
 plotly
+streamlit-autorefresh
