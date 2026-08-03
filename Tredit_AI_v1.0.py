@@ -1,4 +1,8 @@
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
+# ⏱️ हर 1 सेकंड में लाइव रेट ऑटो-रिफ्रेश करने का टाइमर
+st_autorefresh(interval=1000, limit=None, key="live_market_ticks")
+
 import streamlit.components.v1 as components
 import yfinance as yf
 
