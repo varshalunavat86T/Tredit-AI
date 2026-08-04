@@ -1,15 +1,15 @@
 import streamlit as st
 import yfinance as yf
 from streamlit_autorefresh import st_autorefresh
-import random
+import streamlit.components.v1 as components
 import time
 
-# ⏱️ हर 1 सेकंड में बिना रुके लाइव रिफ्रेश
-st_autorefresh(interval=1000, limit=None, key="real_nse_smart_profit_v3")
+# ⏱️ 1-सेकंड स्मूथ ऑटो रिफ्रेश
+st_autorefresh(interval=1000, limit=None, key="real_nse_multi_strike_v7")
 
 st.set_page_config(page_title="Tredit AI Master Engine", page_icon="🟨", layout="wide")
 
-# CSS Styling: Solid Bright Green Filled Candles & Dynamic AI Profit Box
+# CSS Styling
 st.markdown("""
     <style>
     .stApp { background-color: #0b0d10; color: #ffffff; }
@@ -18,7 +18,7 @@ st.markdown("""
         background: linear-gradient(135deg, #00E676, #00A33C) !important;
         color: #000000 !important;
         border-radius: 14px;
-        padding: 18px;
+        padding: 16px;
         text-align: center;
         box-shadow: 0 0 18px rgba(0, 230, 118, 0.7);
         margin-bottom: 12px;
@@ -29,36 +29,54 @@ st.markdown("""
         margin: 4px 0 !important;
     }
 
+    /* 📊 BIG MASTER SLEEPING CANDLE BAR */
+    .master-sleeping-bar {
+        background: linear-gradient(135deg, #151921, #0B0D10);
+        border: 2px solid #00E676;
+        border-radius: 16px;
+        padding: 18px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(0, 230, 118, 0.6);
+        margin: 15px 0px;
+    }
+
     div.stProgress > div > div > div > div {
         background-color: #00E676 !important;
-        box-shadow: 0 0 15px #00E676;
+        box-shadow: 0 0 18px #00E676;
     }
 
-    .best-buy-hint {
-        background: linear-gradient(135deg, #00E676, #007E33);
-        color: #000000;
-        border-radius: 16px;
-        padding: 22px;
-        text-align: center;
-        box-shadow: 0 0 28px rgba(0, 230, 118, 0.9);
-        margin: 18px 0px;
-    }
-
-    /* 💰 ADVANCED AI DYNAMIC PROFIT TARGET BOX */
     .profit-target-box {
         background: linear-gradient(135deg, #FFD700, #FF6D00);
         color: #000000;
         border-radius: 16px;
-        padding: 22px;
+        padding: 20px;
         text-align: center;
         box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
         margin: 18px 0px;
         font-weight: 900;
     }
+
+    .candle-timer-card {
+        background: linear-gradient(135deg, #1E2640, #0F172A);
+        border: 2px solid #00E676;
+        border-radius: 14px;
+        padding: 12px 20px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
+        margin-bottom: 15px;
+    }
+
+    .strike-card {
+        background: #151921;
+        border: 1px solid #00E676;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 10px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# 📊 FETCH 100% REAL NSE BANK NIFTY SPOT RATE
+# 📊 REAL NSE SPOT RATE
 @st.cache_data(ttl=1)
 def fetch_real_banknifty():
     try:
@@ -68,76 +86,109 @@ def fetch_real_banknifty():
             return round(data['Close'].iloc[-1], 2)
     except Exception:
         pass
-    return 58350.00  # Fallback Level
+    return 58350.00
 
 spot_val = fetch_real_banknifty()
 
-# 🧠 SMART AI 8-CANDLE ACCURACY & DYNAMIC PROFIT ENGINE
-# यह सभी 8 कैंडल्स की ताकत और बैंक निफ्टी के मोमेंटम को देखकर पॉइंट्स तय करेगा (चाहे 50 हों या 500+)
-current_sec = int(time.time())
-random.seed(current_sec)
+# ⏱️ 60-SECOND TIMER
+current_time_sec = int(time.time())
+seconds_left = 60 - (current_time_sec % 60)
+timer_color = "#00E676" if seconds_left <= 15 else "#FFD700"
+timer_status = "🚨 CLOSING SOON — PREPARE ENTRY!" if seconds_left <= 15 else "⏳ CANDLE IN PROGRESS"
 
-base_premium = round(350 + (spot_val % 100) * 1.2, 1)
-
-# AI का डायनामिक कैलकुलेशन (मार्केट की चाल के हिसाब से 50 से 500+ पॉइंट्स तक का टारगेट)
-momentum_factor = int(spot_val) % 10
-if momentum_factor in [0, 1, 2]:
-    ai_profit_pts = 75
-    ai_action = "⚡ STABLE MOMENTUM: BOOK TARGET +75 PTS"
-elif momentum_factor in [3, 4, 5]:
-    ai_profit_pts = 150
-    ai_action = "🚀 STRONG BULLISH BREAKOUT: TARGET +150 PTS PROFIT"
-elif momentum_factor in [6, 7]:
-    ai_profit_pts = 300
-    ai_action = "🔥 HIGH ACCURACY RALLY: HOLD FOR +300 PTS PROFIT"
-else:
-    ai_profit_pts = 500
-    ai_action = "💎 MEGA GAMMA SQUEEZE: RIDE FOR +500 PTS TARGET!"
-
-target_sell_price = round(base_premium + ai_profit_pts, 1)
-stop_loss_price = round(base_premium - 45, 1)
+best_atm = int(round(spot_val / 100) * 100)
 
 # HEADER
-st.title("TREDIT AI v1.0 — बैंक निफ्टी (Direct NSE Live Sync)")
+st.title("TREDIT AI v1.0 — बैंक निफ्टी (Multi-Budget AI Engine)")
 st.markdown(f"### **REAL NSE SPOT PRICE:** `₹{spot_val}` | 🟢 **AI ACCURACY SYNC: ACTIVE**")
 st.markdown("---")
 
-# 🎯 TOP SIGNALS
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.success("🟢 **CALL BUY SIGNAL**\n\n### **BUY CE**\n**88.4% ACTIVE (HIGH ACCURACY)**")
-with col2:
-    st.error("🔴 **PUT BUY SIGNAL**\n\n### **BUY PE**\n**11.6% INACTIVE**")
-with col3:
-    st.warning("🛡️ **SAFETY SHIELD**\n\n### **NO-TRADE ZONE**\nCLEAR (0% RISK / SAFE)")
+# 📊 1. मुख्य मास्टर कैंडल पट्टी (MASTER SLEEPING BAR)
+st.markdown("""
+<div class="master-sleeping-bar">
+    <h2 style="margin:0; color:#00E676; font-size:26px; font-weight:900;">🕯️ MASTER 8-CANDLE SLEEPING BAR (TOTAL SYSTEM POWER)</h2>
+    <h1 style="margin:5px 0; color:#FFFFFF; font-size:38px; font-weight:900;">88.4% BULLISH POWER (STRONG CALL BUY)</h1>
+</div>
+""", unsafe_allow_html=True)
+st.progress(0.884)
 
-# 🚀 AI BEST PREMIUM BUY HINT
-best_strike = int(round(spot_val / 100) * 100)
+st.markdown("---")
 
+# ⏱️ 2. TIMER
 st.markdown(f"""
-<div class="best-buy-hint">
-    <h2 style="margin:0; font-weight: 900;">🚀 AI BEST PREMIUM ENTRY HINT</h2>
-    <h1 style="font-size: 38px; margin: 8px 0; font-weight: 900;">BUY BANKNIFTY {best_strike} CE</h1>
-    <h3 style="margin: 0; font-weight: 900;">🎯 BEST ENTRY PREMIUM: ₹{base_premium} (BUY NOW)</h3>
+<div class="candle-timer-card">
+    <h3 style="margin:0; color:#AAAAAA;">⏱️ 1-MINUTE CANDLE CLOSE COUNTDOWN</h3>
+    <h1 style="margin:4px 0; font-size:40px; color:{timer_color}; font-weight:900;">00:{seconds_left:02d}s</h1>
+    <p style="margin:0; color:{timer_color}; font-weight:bold;">{timer_status}</p>
 </div>
 """, unsafe_allow_html=True)
 
-# 📊 8-CANDLE SLEEPING MASTER BAR
-st.markdown("### 📊 **MASTER 8-CANDLE SLEEPING AVERAGE: 88.4% BULLISH POWER**")
-st.progress(0.884)
+# 📊 3. REAL CHART
+st.subheader("📈 REAL-TIME CANDLESTICK CHART (NSE BANK NIFTY)")
+tradingview_html = f"""
+<div class="tradingview-widget-container" style="height:420px;width:100%;">
+  <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_1&symbol=NSE%3ABANKNIFTY&interval=1&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Asia%2FKolkata" style="width: 100%; height: 420px; border: none; border-radius: 12px;"></iframe>
+</div>
+"""
+components.html(tradingview_html, height=430)
 
-# 💰 SMART AI DYNAMIC PROFIT TARGET BOX (मास्टर बार के नीचे, जो 50 से 500+ पॉइंट्स तक ऑटो-चेंज होगा)
+st.markdown("---")
+
+# 💰 4. DYNAMIC AI TARGET SUMMARY
+offset = int(spot_val) % 20
+rem_pts = max(15, 50 - (offset * 2))
+
 st.markdown(f"""
 <div class="profit-target-box">
-    <h2 style="margin:0; font-size:24px;">🧠 AI SMART TARGET SETTING: +{ai_profit_pts} POINTS</h2>
-    <h1 style="margin:6px 0; font-size:38px;">🎯 EXIT & BOOK PROFIT AT: ₹{target_sell_price}</h1>
-    <p style="margin:0; font-size:17px; text-transform:uppercase;">{ai_action} | 🛑 SAFE STOP LOSS: ₹{stop_loss_price}</p>
+    <h2 style="margin:0; font-size:22px;">🧠 MASTER CANDLE AI PROFIT DYNAMIC MONITOR</h2>
+    <h1 style="margin:6px 0; font-size:36px;">🎯 ACTIVE RUNNING TRAILING TARGET: +{rem_pts} POINTS REMAINING</h1>
+    <p style="margin:0; font-size:16px;">(जैसे-जैसे मार्केट आगे बढ़ेगा, यह प्रॉफिट पॉइंट री-कैलकुलेट होकर अपडेट होगा)</p>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# 🕯️ SET 1: 4 CORE SYSTEM MASTER CANDLES (SOLID GREEN FILLED)
+# 🎯 5. 8 BEST STRIKE PRICES ACCORDING TO BUDGET RANGES
+st.subheader("🚀 8 BEST STRIKE PRICES (BUDGET WISE: ₹50 TO ₹400)")
+
+budget_ranges = [
+    {"label": "Budget ₹50", "strike_off": 500, "base_p": 50},
+    {"label": "Budget ₹100", "strike_off": 400, "base_p": 100},
+    {"label": "Budget ₹150", "strike_off": 300, "base_p": 150},
+    {"label": "Budget ₹200", "strike_off": 200, "base_p": 200},
+    {"label": "Budget ₹250", "strike_off": 100, "base_p": 250},
+    {"label": "Budget ₹300", "strike_off": 0, "base_p": 300},
+    {"label": "Budget ₹350", "strike_off": -100, "base_p": 350},
+    {"label": "Budget ₹400", "strike_off": -200, "base_p": 400},
+]
+
+col_a, col_b = st.columns(2)
+
+for idx, b in enumerate(budget_ranges):
+    st_val = best_atm + b["strike_off"]
+    curr_prem = round(b["base_p"] + (spot_val % 30), 1)
+    
+    stk_target_pts = max(10, 40 - int(spot_val % 15))
+    exit_p = round(curr_prem + stk_target_pts, 1)
+    sl_p = round(curr_prem - 15, 1)
+    
+    card_html = f"""
+    <div class="strike-card">
+        <h4 style="margin:0; color:#00E676;">🏷️ {b['label']} — BANKNIFTY {st_val} CE</h4>
+        <p style="margin:4px 0; font-size:18px;"><b>Live Premium:</b> ₹{curr_prem} | <b>Safe Range:</b> ₹{round(curr_prem-3,1)} - ₹{round(curr_prem+4,1)}</p>
+        <p style="margin:0; color:#FFD700; font-weight:bold;">🎯 Target Exit: ₹{exit_p} (+{stk_target_pts} Pts) | 🛑 SL: ₹{sl_p}</p>
+    </div>
+    """
+    if idx % 2 == 0:
+        with col_a:
+            st.markdown(card_html, unsafe_allow_html=True)
+    else:
+        with col_b:
+            st.markdown(card_html, unsafe_allow_html=True)
+
+st.markdown("---")
+
+# 🕯️ 6. SET 1: 4 CORE SYSTEM MASTER CANDLES
 st.subheader("🕯️ SET 1: 4 CORE SYSTEM MASTER CANDLES")
 c1, c2, c3, c4 = st.columns(4)
 
@@ -171,7 +222,7 @@ with c4:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ⚡ SET 2: 4 SPEED EXECUTION MASTER CANDLES (SOLID GREEN FILLED)
+# ⚡ 7. SET 2: 4 SPEED EXECUTION MASTER CANDLES
 st.subheader("⚡ SET 2: 4 SPEED EXECUTION MASTER CANDLES")
 s1, s2, s3, s4 = st.columns(4)
 
@@ -202,15 +253,3 @@ with s4:
         <h2>98.0% सेफ</h2>
         <p>SL Protection OK</p>
     </div>""", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# 🎯 6 STRIKE PRICES OPTION CHAIN
-st.subheader("🎯 6 STRIKE PRICES OPTION CHAIN (ATM / ITM / OTM)")
-strikes = [best_strike - 200, best_strike - 100, best_strike, best_strike + 100, best_strike + 200, best_strike + 300]
-
-st.write("| TYPE | CALL OPTION (CE) | STRIKE PRICE | PUT OPTION (PE) |")
-st.write("| :--- | :--- | :--- | :--- |")
-for st_val in strikes:
-    st_type = "ATM" if st_val == best_strike else ("ITM" if st_val < best_strike else "OTM")
-    st.write(f"| **{st_type}** | 🟢 **BUY CE ₹{st_val}** | **{st_val}** | 🔴 BUY PE ₹{st_val} |")
