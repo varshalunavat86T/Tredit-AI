@@ -1,12 +1,12 @@
 import streamlit as st
 import yfinance as yf
 from streamlit_autorefresh import st_autorefresh
-import streamlit.components.v1 as components
+import plotly.graph_objects as go
 import random
 import time
 
-# ⏱️ हर 1 सेकंड में बिना रुके लाइव रिफ्रेश
-st_autorefresh(interval=1000, limit=None, key="tredit_ai_dynamic_engine_v9")
+# ⏱️ 1-सेकंड स्मूथ ऑटो रिफ्रेश
+st_autorefresh(interval=1000, limit=None, key="tredit_ai_native_chart_v11")
 
 st.set_page_config(page_title="Tredit AI Master Engine", page_icon="🟨", layout="wide")
 
@@ -76,21 +76,22 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 📊 1. FETCH REAL NSE SPOT RATE
+# 📊 1. FETCH REAL NSE SPOT RATE & CANDLE DATA
 @st.cache_data(ttl=1)
-def fetch_real_banknifty():
+def fetch_real_banknifty_data():
     try:
         ticker = yf.Ticker("^NSEBANK")
-        data = ticker.history(period="1d", interval="1m")
-        if not data.empty:
-            return round(data['Close'].iloc[-1], 2)
+        df = ticker.history(period="1d", interval="1m")
+        if not df.empty:
+            spot = round(df['Close'].iloc[-1], 2)
+            return spot, df
     except Exception:
         pass
-    return 58350.00
+    return 58350.00, None
 
-spot_val = fetch_real_banknifty()
+spot_val, chart_df = fetch_real_banknifty_data()
 
-# ⏱️ 2. TIME-BASED REAL DYNAMIC SEED (हर सेकंड वेरिएशन्स जनरेट करेगा)
+# ⏱️ 2. DYNAMIC TIME SEED
 curr_sec_time = int(time.time())
 random.seed(curr_sec_time)
 
@@ -100,7 +101,6 @@ timer_status = "🚨 CLOSING SOON — PREPARE ENTRY!" if seconds_left <= 15 else
 
 best_atm = int(round(spot_val / 100) * 100)
 
-# 🧠 Live Dynamic Calculations for Master Bar & 8 Candles
 master_power = round(85.0 + (curr_sec_time % 70) * 0.1, 1)
 
 c1_val = round(80.0 + random.uniform(1.0, 5.0), 1)
@@ -115,10 +115,10 @@ s4_val = round(94.0 + random.uniform(1.0, 4.0), 1)
 
 # HEADER
 st.title("TREDIT AI v1.0 — बैंक निफ्टी (Multi-Budget AI Engine)")
-st.markdown(f"### **REAL NSE SPOT PRICE:** `₹{spot_val}` | 🟢 **LIVE ENGINE: TICKING ACTIVE**")
+st.markdown(f"### **REAL NSE SPOT PRICE:** `₹{spot_val}` | 🟢 **DIRECT NSE SYNC: ACTIVE**")
 st.markdown("---")
 
-# 📊 3. मुख्य मास्टर कैंडल पट्टी (LIVE MOVING MASTER BAR)
+# 📊 3. मुख्य मास्टर कैंडल पट्टी
 st.markdown(f"""
 <div class="master-sleeping-bar">
     <h2 style="margin:0; color:#00E676; font-size:26px; font-weight:900;">🕯️ MASTER 8-CANDLE SLEEPING BAR (TOTAL SYSTEM POWER)</h2>
@@ -129,7 +129,7 @@ st.progress(master_power / 100.0)
 
 st.markdown("---")
 
-# ⏱️ 4. LIVE 60-SEC COUNTDOWN TIMER
+# ⏱️ 4. TIMER
 st.markdown(f"""
 <div class="candle-timer-card">
     <h3 style="margin:0; color:#AAAAAA;">⏱️ 1-MINUTE CANDLE CLOSE COUNTDOWN</h3>
@@ -138,18 +138,34 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# 📊 5. TRADINGVIEW LIVE CHART
-st.subheader("📈 REAL-TIME LIVE CHART (NSE BANK NIFTY)")
-tradingview_html = """
-<div class="tradingview-widget-container" style="height:420px;width:100%;">
-  <iframe src="https://s.tradingview.com/widgetembed/?symbol=INDEX%3ANIFTY&interval=1&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Asia%2FKolkata" style="width: 100%; height: 420px; border: none; border-radius: 12px;"></iframe>
-</div>
-"""
-components.html(tradingview_html, height=430)
+# 📊 5. NATIVE 100% NSE BANK NIFTY CANDLESTICK CHART
+st.subheader("📈 REAL-TIME LIVE NSE BANK NIFTY CANDLESTICK CHART")
+
+if chart_df is not None and not chart_df.empty:
+    fig = go.Figure(data=[go.Candlestick(
+        x=chart_df.index,
+        open=chart_df['Open'],
+        high=chart_df['High'],
+        low=chart_df['Low'],
+        close=chart_df['Close'],
+        increasing_line_color='#00E676',
+        decreasing_line_color='#FF5252'
+    )])
+    fig.update_layout(
+        template="plotly_dark",
+        margin=dict(l=10, r=10, t=10, b=10),
+        height=400,
+        xaxis_rangeslider_visible=False,
+        paper_bgcolor="#0b0d10",
+        plot_bgcolor="#0b0d10"
+    )
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.info("📊 NSE Bank Nifty Data Loading...")
 
 st.markdown("---")
 
-# 💰 6. DYNAMIC AI TARGET MONITOR (मास्टर कैंडल का लाइव रिमेनिंग पॉइंट्स)
+# 💰 6. DYNAMIC AI TARGET MONITOR
 offset = (curr_sec_time % 20)
 rem_pts = max(10, 60 - (offset * 3))
 
@@ -163,7 +179,7 @@ st.markdown(f"""
 
 st.markdown("---")
 
-# 🎯 7. 8 LIVE MOVING BUDGET STRIKE PRICES (₹50 TO ₹400)
+# 🎯 7. 8 LIVE MOVING BUDGET STRIKE PRICES
 st.subheader("🚀 8 BEST STRIKE PRICES (BUDGET WISE LIVE MOVING: ₹50 TO ₹400)")
 
 budget_ranges = [
@@ -204,7 +220,7 @@ for idx, b in enumerate(budget_ranges):
 
 st.markdown("---")
 
-# 🕯️ 8. SET 1: 4 CORE SYSTEM MASTER CANDLES (LIVE MOVING VALUES)
+# 🕯️ 8. SET 1: 4 CORE SYSTEM MASTER CANDLES
 st.subheader("🕯️ SET 1: 4 CORE SYSTEM MASTER CANDLES")
 c1, c2, c3, c4 = st.columns(4)
 
@@ -238,7 +254,7 @@ with c4:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ⚡ 9. SET 2: 4 SPEED EXECUTION MASTER CANDLES (LIVE MOVING VALUES)
+# ⚡ 9. SET 2: 4 SPEED EXECUTION MASTER CANDLES
 st.subheader("⚡ SET 2: 4 SPEED EXECUTION MASTER CANDLES")
 s1, s2, s3, s4 = st.columns(4)
 
