@@ -2,8 +2,8 @@ import streamlit as st
 from kiteconnect import KiteConnect
 
 # ⚙️ 1. ZERODHA CREDENTIALS (अपनी डिटेल्स यहाँ भरें)
-API_KEY = hucynx7stpod5za4
-API_SECRET = 7e6wt7b32fozv6spec3q83hzrlqclybd
+API_KEY = "hucynx7stpod5za4"
+API_SECRET = "7e6wt7b32fozv6spec3q83hzrlqclybd"
 
 st.set_page_config(page_title="Tredit AI - Zerodha Connect", page_icon="⚡")
 
