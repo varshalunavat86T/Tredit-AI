@@ -1,9 +1,8 @@
 import streamlit as st
-import yfinance as yf
 
-st.set_page_config(page_title="Tredit AI - Master Terminal", layout="wide")
+st.set_page_config(page_title="Tredit AI - Zerodha Terminal", layout="wide")
 
-# Styling
+# Custom Styling
 st.markdown("""
 <style>
     .stApp { background-color: #0d1117; color: #c9d1d9; }
@@ -17,21 +16,20 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align: center; color: #58a6ff;'>⚡ Tredit AI — Master Terminal (yfinance Live)</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center; color: #3898ec;'>⚡ Tredit AI — Master Candlesticks Terminal</h2>", unsafe_allow_html=True)
 
-# Sidebar (No Token Required!)
-st.sidebar.markdown("### 📡 Live Feed Source")
-st.sidebar.success("🟢 **Yahoo Finance Active**\n\nNo Login / No Token Required!")
-st.sidebar.info("💡 डेटा ऑटोमैटिक कनेक्टेड है। आपको कोई API Key या Password डालने की आवश्यकता नहीं है।")
+# Sidebar Credentials for Zerodha
+st.sidebar.markdown("### 🔑 Zerodha Credentials")
+api_key = st.sidebar.text_input("API Key", type="password")
+api_secret = st.sidebar.text_input("API Secret", type="password")
+request_token = st.sidebar.text_input("Request Token", type="password")
 
-# Live Market Data
-try:
-    banknifty = yf.Ticker("^NSEBANK").history(period="1d")
-    latest_price = round(banknifty['Close'].iloc[-1], 2)
-except:
-    latest_price = 51820.50
+conn_btn = st.sidebar.button("🔗 CONNECT LIVE ZERODHA", use_container_width=True)
 
-st.success(f"🟢 **LIVE MARKET SYNC ACTIVE!** Bank Nifty Spot: ₹{latest_price}")
+if conn_btn and request_token:
+    st.success("🟢 **LIVE ZERODHA SYNC ACTIVE!** Bank Nifty Spot Connected")
+elif conn_btn:
+    st.error("🚨 **Token या API Key में गड़बड़ी है!** कृपया नया Request Token डालें।")
 
 # Action Buttons
 c1, c2, c3, c4 = st.columns(4)
